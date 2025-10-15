@@ -1,45 +1,48 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import OngoingKnockouts from "@/components/war/OngoingKnockouts";
+import React, { useEffect } from "react";
+import { useQuery } from '@tanstack/react-query';
+import MemeBattleCard from "@/components/MemeBattleCard";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import WarPage from "@/components/war/WarPage";
 import { duelsAPI } from "@/lib/api";
 import { websocketService } from "@/services/websocket.service";
 import { usePrivy } from '@privy-io/react-auth';
 import type { Duel } from "@/types";
+import { useRouter } from 'next/navigation';
 
-export default function WarPage() {
-  const [duels, setDuels] = useState<Duel[]>([]);
+// Helper to compute avatar URL from token mint (fallback to local logo)
+const getAvatarSrc = (mint?: string) => {
+  if (mint && mint.length > 0) {
+    return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/assets/${mint}/logo.png`;
+  }
+  return "/logo.png";
+};
+
+export default function Home() {
   const { ready, authenticated, getAccessToken } = usePrivy();
+  const router = useRouter();
 
-  const loadDuels = useCallback(async () => {
-    try {
-      const all = await duelsAPI.getActiveDuels() as { success: boolean; duels: Duel[] };
-      if (all?.success) {
-        setDuels(all.duels || []);
-        // Join WS rooms for all listed duels so we receive price_update heartbeats
-        (all.duels || []).forEach((d) => {
-          if (d?.id) websocketService.joinDuel(d.id);
-        });
-        // Subscribe to prices for all visible duels
-        (all.duels || []).forEach((d) => {
-          if (!d?.id) return;
-          if (d.token_a_mint && d.token_b_mint && d.token_a_symbol && d.token_b_symbol) {
-            websocketService.subscribeDuelPrices(
-              d.id,
-              d.token_a_mint,
-              d.token_a_symbol,
-              d.token_b_mint,
-              d.token_b_symbol,
-            );
-          }
-        });
+  // Simplified data fetching with TanStack Query
+  const { data: duelsData, isLoading, error } = useQuery({
+    queryKey: ['active-duels'],
+    queryFn: async () => {
+      const response = await duelsAPI.getActiveDuels() as { success: boolean; duels: Duel[] };
+      if (response?.success && response.duels) {
+        return response.duels;
       }
-    } catch {
-      console.error('Failed to load duels');
-    }
-  }, []);
+      throw new Error('Failed to fetch duels');
+    },
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // Refetch every minute
+    retry: 2,
+  });
+  console.log("🚀 ~ Home ~ duelsData:", duelsData)
 
-  // Initialize WebSocket authentication
+  // Get the first duel as featured
+  const featuredDuel = duelsData?.[0] || null;
+
+  // Initialize WebSocket authentication for notifications
   useEffect(() => {
     if (ready && authenticated) {
       const authenticateWS = async () => {
@@ -57,52 +60,53 @@ export default function WarPage() {
     }
   }, [ready, authenticated, getAccessToken]);
 
-  useEffect(() => {
-    // Initial load
-    loadDuels();
-    
-    // Set up real-time updates via WebSocket events
-    const unsubscribeAuth = websocketService.on('authenticated', (data) => {
-      if (data.success) {
-        console.log('WebSocket authenticated, refreshing duels');
-        loadDuels();
-      }
-    });
-
-    // Listen for custom events from CreateDuelModal (fallback for duel creation)
-    const handleRefresh = () => {
-      console.log('Manual refresh triggered');
-      loadDuels();
-    };
-    
-    window.addEventListener('duel-created', handleRefresh);
-    window.addEventListener('bet-placed', handleRefresh);
-    
-    return () => {
-      unsubscribeAuth();
-      // Optionally leave duel rooms when navigating away from list
-      try {
-        duels.forEach((d) => d?.id && websocketService.leaveDuel(d.id));
-      } catch {}
-      window.removeEventListener('duel-created', handleRefresh);
-      window.removeEventListener('bet-placed', handleRefresh);
-    };
-  }, [loadDuels, duels]);
-
-
   return (
-    <main className="min-h-screen w-full bg-[#0A0A0A] text-white">
+    <main className="min-h-screen bg-gradient-to-br from-[#181824] via-[#23243a] to-[#181824] flex flex-col items-center">
 
 
-        {/* Ongoing Knockouts Table */}
-        <OngoingKnockouts
-          duels={duels}
-          onFightNow={(id) => {
-            // navigate to duel page when available
-            window.location.href = `/war/${id}`
-          }}
-        />
-
+      {!isLoading && <div className=" mx-auto p-8 flex flex-col items-center">
+        {/* Title & Subtitle */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-green-300 mb-2">
+            meme knockouts
+          </h1>
+          <p className="text-lg text-gray-300">
+            pick a side. make your meme win.
+          </p>
+        </div>
+        {/* Meme Cards */}
+        <div className="flex flex-wrap gap-2 md:gap-8 justify-center mb-12">
+          {(duelsData || []).map((duel) => {
+            const left = {
+              name: duel.token_a_symbol || duel.token_a_name,
+              avatar: {
+                src: getAvatarSrc(duel.token_a_mint),
+                alt: duel.token_a_name || duel.token_a_symbol || 'Token A'
+              },
+              theme: { backgroundColor: "#22c55e", textColor: "#111827" },
+            };
+            const right = {
+              name: duel.token_b_symbol || duel.token_b_name,
+              avatar: {
+                src: getAvatarSrc(duel.token_b_mint),
+                alt: duel.token_b_name || duel.token_b_symbol || 'Token B'
+              },
+              theme: { backgroundColor: "#d946ef", textColor: "#111827" },
+            };
+            return (
+              <MemeBattleCard
+                key={duel.id}
+                left={left}
+                right={right}
+                isHot={!!duel.featured}
+                className="shadow-xl"
+                onClick={() => router.push(`/war/${duel.id}`)}
+              />
+            );
+          })}
+        </div>
+      </div>
+      }
     </main>
   );
 }

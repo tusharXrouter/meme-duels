@@ -1,54 +1,39 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { QueryProvider } from "@/components/providers/query-provider";
-import { PrivyProvider } from "@/components/providers/privy-provider";
-import { Buffer } from 'buffer'
-import process from 'process'
-import { Header } from "@/components/Header";
-import { AppToaster } from "@/components/ToasterClient";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Meme Duels",
-  description: "A fun meme dueling application",
-};
+import type { Metadata } from 'next';
+import { GeistSans } from 'geist/font/sans';
+import './globals.css';
+import { QueryProvider } from '@/components/providers/query-provider';
+import { PrivyProvider } from '@/components/providers/privy-provider';
+import { Buffer } from 'buffer';
+import process from 'process';
+import { AppToaster } from '@/components/ToasterClient';
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-
-  // Setup complete polyfills
-  global.Buffer = Buffer
-  global.process = process
-  // window.Buffer = Buffer
-  // window.process = process
-  
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <PrivyProvider>
-          <QueryProvider>
-            {/* Header Component */}
-            <Header />
-            {children}
-            <AppToaster />
-          </QueryProvider>
-        </PrivyProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html
+			lang="en"
+			suppressHydrationWarning
+		>
+			<head>
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<link rel="icon" type="image/png" href="/favicon.png" />
+				<meta
+					name="description"
+					content="Meme Wars - A fun meme dueling application"
+				/>
+				<title>Meme Wars</title>
+			</head>
+			<body className={`h-full dark  ${GeistSans.className} bg-[var(--background)] text-foreground`}>
+				<PrivyProvider>
+					<QueryProvider>
+						{children}
+						<AppToaster />
+					</QueryProvider>
+				</PrivyProvider>
+			</body>
+		</html>
+	);
 }

@@ -16,6 +16,7 @@ import { usePriceStore, selectDuelPrices } from "@/stores/price.store";
 import { TransactionBanner } from "@/components/TransactionBanner";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import RealtimeTokenChart from '@/components/war/RealtimeTokenChart';
+import { toast } from "sonner";
 
 interface WarPageProps {
   duelId: string;
@@ -55,6 +56,8 @@ export default function WarPage({ duelId, showTransactionBanner = true, classNam
 
   // Fetch duel data using TanStack Query
   const { duel, epoch } = useDuelData(duelId);
+  console.log("🚀 ~ WarPage ~ epoch:", epoch)
+  console.log("🚀 ~ WarPage ~ duel:", duel)
 
   // Ensure we join the WebSocket room for this specific duel immediately
   useEffect(() => {
@@ -208,6 +211,8 @@ export default function WarPage({ duelId, showTransactionBanner = true, classNam
           window.dispatchEvent(new CustomEvent('bet-placed', { detail: { duelId, choice, amount } }));
         } else {
           console.warn('Bet failed:', res?.error || 'Unknown error');
+          // Show error notification
+          toast.error(`Bet failed: ${res?.error || 'Unknown error'}`, { duration: 5000 });
         }
       }
     } catch (err) {
