@@ -163,15 +163,26 @@ export const Header = () => {
 		<>
 			<header className="flex items-center justify-between px-6 bg-app">
 				<div className="flex items-center gap-8">
-					<Link href="/">
-						<Image
-							src="/new-logo.png"
-							alt="pumpduels"
-							className="h-32 w-36"
-							width={400}
-							height={400}
-						/>
-					</Link>
+					<div className="flex gap-1 items-center">
+						<Link href="/">
+							<Image
+								src="/new-logo.png"
+								alt="pumpduels"
+								className="h-32 w-36"
+								width={400}
+								height={400}
+							/>
+						</Link>
+						{/* <div className="h-3 w-5">
+							<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30 animate-pulse">
+								<span className="relative flex h-2 w-2">
+									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+									<span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+								</span>
+								DEVNET
+							</span>
+						</div> */}
+					</div>
 
 					<nav className="hidden md:flex items-center gap-6 pl-10">
 						{HEADER_NAVIGATION.map((item) => (
@@ -231,7 +242,7 @@ export const Header = () => {
 										</span>
 									</Button>
 								</PopoverTrigger>
-								<PopoverContent  align="end">
+								<PopoverContent align="end">
 									<div className="flex flex-col gap-2">
 										<div className="flex items-start justify-between">
 											<p className="text-sm font-semibold text-[var(--primary)]">
