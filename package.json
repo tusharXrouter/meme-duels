@@ -12,6 +12,8 @@
 		"@privy-io/react-auth": "^2.24.0",
 		"@radix-ui/react-dialog": "^1.1.15",
 		"@radix-ui/react-label": "^2.1.7",
+		"@radix-ui/react-popover": "^1.1.15",
+		"@radix-ui/react-separator": "^1.1.7",
 		"@radix-ui/react-slot": "^1.2.3",
 		"@solana-program/system": "^0.8.1",
 		"@solana-program/token": "^0.6.0",
@@ -25,6 +27,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"framer-motion": "^12.23.12",
+		"geist": "^1.5.1",
 		"lightweight-charts": "^5.0.8",
 		"lucide-react": "^0.541.0",
 		"next": "15.4.7",
@@ -34,11 +37,12 @@
 		"socket.io-client": "^4.8.1",
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.3.1",
-		"zustand": "^5.0.8",
-		"geist": "^1.5.1"
+		"usehooks-ts": "^3.1.1",
+		"zustand": "^5.0.8"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
+		"@svgr/webpack": "^8.1.0",
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "^20",
 		"@types/react": "^19",

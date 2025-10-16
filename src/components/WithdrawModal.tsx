@@ -16,13 +16,13 @@ export function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [usdValue, setUsdValue] = useState(0);
-  
+
   const { user } = usePrivy();
   const { balances, refreshBalances } = useUserStore();
 
   // Mock SOL price - in production, get from pricing service
   const solPrice = 225.50;
-  
+
   const userBalance = balances?.['So11111111111111111111111111111111111111112'] || 0;
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle className="text-white text-xl font-bold">Withdraw</DialogTitle>
         </DialogHeader>
@@ -126,7 +126,7 @@ export function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
                   SOL
                 </div>
               </div>
-              
+
               <div className="text-right">
                 <span className="text-gray-400 text-sm">~${usdValue.toFixed(2)} USD</span>
                 <div className="text-gray-400 text-sm">
@@ -178,9 +178,9 @@ export function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
           <Button
             onClick={handleWithdraw}
             disabled={
-              isLoading || 
-              !amount || 
-              parseFloat(amount) <= 0 || 
+              isLoading ||
+              !amount ||
+              parseFloat(amount) <= 0 ||
               parseFloat(amount) > userBalance
             }
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold h-12 text-lg"
@@ -194,8 +194,8 @@ export function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
               Funds will be sent to your connected wallet
             </p>
             <p className="text-gray-500 text-xs mt-1">
-              {user?.wallet?.address ? 
-                `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}` : 
+              {user?.wallet?.address ?
+                `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}` :
                 'No wallet connected'
               }
             </p>

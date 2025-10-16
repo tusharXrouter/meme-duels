@@ -10,6 +10,13 @@ const baseConfig: NextConfig = {
 	},
 	// Simplified webpack configuration
 	webpack: (config, { isServer, webpack }) => {
+		// SVGR support for both server and client
+		config.module.rules.push({
+			test: /\.svg$/,
+			issuer: /\.[jt]sx?$/,
+			use: ['@svgr/webpack'],
+		});
+
 		if (!isServer) {
 			// Essential polyfills only
 			config.resolve.fallback = {
@@ -28,13 +35,6 @@ const baseConfig: NextConfig = {
 					Buffer: ['buffer', 'Buffer'],
 				})
 			);
-
-			// SVGR support
-			config.module.rules.push({
-				test: /\.svg$/,
-				issuer: /\.[jt]sx?$/,
-				use: ['@svgr/webpack'],
-			});
 		}
 		return config;
 	},
@@ -50,6 +50,7 @@ const baseConfig: NextConfig = {
 		localPatterns: [
 			{ pathname: '/images/**', search: '' },
 			{ pathname: '/src/assets/**', search: '' },
+			{ pathname: '/meme-avatars/**', search: '' },
 			{ pathname: '/*.png', search: '' },
 		],
 		deviceSizes: [640, 750, 828, 1080, 1200],

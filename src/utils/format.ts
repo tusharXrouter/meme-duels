@@ -27,7 +27,7 @@ export function formatRelativeTime(date: Date | string): string {
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
   if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`
-  
+
   return formatDate(date)
 }
 
@@ -46,3 +46,5 @@ export function formatNumber(num: number): string {
   return num.toString()
 }
 
+export const shortenAddress = (address: string | undefined, chars = 4) =>
+  address ? `${address.slice(0, chars + 2)}...${address.slice(-chars)}` : "";
